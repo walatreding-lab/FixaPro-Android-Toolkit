@@ -22,7 +22,7 @@ jobs:
         run: python -m pip install --upgrade pip pyinstaller
 
       - name: Build EXE
-        run: pyinstaller --noconfirm --clean --onefile --windowed --name FixaPro_Android_Toolkit_V4 app.py
+        run: pyinstaller --noconfirm --clean --onefile --windowed --name FixaPro_Android_Toolkit app.py
 
       - name: Download Android Platform Tools
         shell: pwsh
