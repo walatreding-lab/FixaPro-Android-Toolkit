@@ -23,7 +23,7 @@ jobs:
 
       - name: Build EXE
         run: |
-          pyinstaller --noconfirm --clean --onefile --windowed --name FixaPro_Android_Toolkit main.py
+          pyinstaller --noconfirm --clean --onefile --windowed --name FixaPro_Android_Toolkit app.py
 
       - name: Download Android Platform Tools
         shell: pwsh
