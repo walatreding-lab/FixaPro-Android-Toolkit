@@ -1,0 +1,53 @@
+name: Build FixaPro Windows EXE
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: python -m pip install --upgrade pip pyinstaller
+
+      - name: Build EXE
+        run: pyinstaller --noconfirm --clean --onefile --windowed --name FixaPro_Android_Toolkit_V4 app.py
+
+      - name: Download Android Platform Tools
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri "https://dl.google.com/android/repository/platform-tools-latest-windows.zip" -OutFile platform-tools.zip
+          Expand-Archive -Path platform-tools.zip -DestinationPath release -Force
+          Copy-Item dist/FixaPro_Android_Toolkit_V4.exe release/
+          @"
+          @echo off
+          set "PATH=%~dp0platform-tools;%PATH%"
+          start "" "%~dp0FixaPro_Android_Toolkit_V4.exe"
+          "@ | Set-Content -Path release/Run_FixaPro.bat -Encoding ASCII
+          @"
+          FixaPro Android Toolkit V4
+          1. Extract this ZIP to a folder.
+          2. Double-click Run_FixaPro.bat to launch the toolkit.
+          3. Connect an Android phone with USB debugging enabled and accept its authorization prompt.
+          Android Platform Tools are included in the platform-tools folder.
+          Use only on devices you own or are authorized to service.
+          "@ | Set-Content -Path release/README.txt -Encoding UTF8
+          Compress-Archive -Path release/* -DestinationPath FixaPro_Android_Toolkit_V4_Windows.zip -Force
+
+      - name: Upload Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: FixaPro-Android-Toolkit-Windows
+          path: FixaPro_Android_Toolkit_V4_Windows.zip
+          if-no-files-found: error
